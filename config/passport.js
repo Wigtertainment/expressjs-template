@@ -1,9 +1,10 @@
 // load all the things we need
 var LocalStrategy = require('passport-local').Strategy;
-
+var passportJWT = require("passport-jwt");
+var authConf = require('./auth.js');
 // load up the user model
 var User = require('../app/models/user');
-
+var JwtStrategy = passportJWT.Strategy;
 // expose this function to our app using module.exports
 module.exports = function (passport) {
 
@@ -73,4 +74,17 @@ module.exports = function (passport) {
                 });
             });
         }));
+
+    var strategy = new JwtStrategy(authConf, function (jwt_payload, next) {
+        console.log('payload received', jwt_payload);
+        User.findById(jwt_payload.id, function (err, user) {
+            if (user) {
+                next(null, user);
+            } else {
+                next(null, false);
+            }
+        });
+    });
+
+    passport.use(strategy);
 };

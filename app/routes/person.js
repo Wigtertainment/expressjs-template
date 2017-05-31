@@ -9,7 +9,7 @@ var personSchema = mongoose.Schema({
 });
 var Person = mongoose.model("Person", personSchema);
 
-router.get('/persons', function (req, res) {
+router.get('/persons', passport.authenticate('jwt', { session: false }), function (req, res) {
     Person.find(function (err, response) {
         res.json(response);
     });
