@@ -6,15 +6,14 @@ var port = process.env.PORT || 3000;
 var mongoose = require('mongoose');
 var jwt = require('jsonwebtoken');
 var passport = require('passport');
-var flash = require('connect-flash');
 
 var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 
-var person = require('./app/routes/person.js');
-var User = require('./app/models/user');
+var personRoute = require('./app/routes/person.js');
+var userModel = require('./app/models/user');
 
 var configDB = require('./config/database.js');
 require('./config/passport.js')(passport);
@@ -26,9 +25,7 @@ mongoose.connect(configDB.url);
 app.use(morgan('dev'));
 app.use(express.static('public'));
 
-//To parse URL encoded data
 app.use(bodyParser.urlencoded({ extended: false }))
-//To parse json data
 app.use(bodyParser.json())
 
 // required for passport
@@ -39,14 +36,13 @@ app.use(session({
 })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
-app.use(flash());
 
 app.use('/person', function (req, res, next) {
     console.log("A new request received at " + Date.now());
     next();
 });
 
-app.use('/person', person);
+app.use('/person', personRoute);
 
 app.get('/logout', function (req, res) {
     req.logout();
@@ -59,7 +55,7 @@ app.post("/login", function (req, res) {
         var password = req.body.password;
     }
 
-    User.findOne({ 'local.email': email }, function (err, user) {
+    userModel.findOne({ 'local.email': email }, function (err, user) {
         if (!user) {
             res.status(401).json({ message: "no such user found" });
         }

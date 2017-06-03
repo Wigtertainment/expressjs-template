@@ -1,13 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var mongoose = require('mongoose');
-
-var personSchema = mongoose.Schema({
-    name: String,
-    age: Number,
-    nationality: String
-});
-var Person = mongoose.model("Person", personSchema);
+var passport = require('passport');
+var Person = require('../models/person');
 
 router.get('/persons', passport.authenticate('jwt', { session: false }), function (req, res) {
     Person.find(function (err, response) {
